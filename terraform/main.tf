@@ -741,6 +741,8 @@ kind: Application
 metadata:
   name: sock-shop
   namespace: argocd
+  labels:
+    architecture: amd64-x86_64  
 spec:
   project: default
   source:
@@ -775,6 +777,8 @@ kind: Application
 metadata:
   name: inflate
   namespace: argocd
+  labels:
+    architecture: arm64-Graviton  
 spec:
   project: default
   source:
