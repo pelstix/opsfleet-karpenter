@@ -4,7 +4,7 @@
 *.so
 *.dylib
 .DS_Store
-*.yaml
+
 
 # Terraform
 *.tfstate
