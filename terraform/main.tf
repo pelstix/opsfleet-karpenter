@@ -41,7 +41,7 @@ provider "kubectl" {
 
 terraform {
   backend "s3" {
-    bucket         = "pelumi-opsfleet-state"  # Replace with your S3 bucket name
+    bucket         = "pelumi-opsfleet-v1"  # Replace with your S3 bucket name
     key            = "eks-cluster/terraform.tfstate"
     region         = "eu-west-2"
     encrypt        = true
@@ -85,7 +85,8 @@ data "aws_ec2_instance_types" "x86_compatible" {
       "*.small", 
       "*.medium", 
       "*.large", 
-      "*.xlarge", 
+      "*.xlarge",
+      "t*", 
       "c*", 
       "m*", 
       "r*"
@@ -120,7 +121,8 @@ data "aws_ec2_instance_types" "arm64_compatible" {
       "*.medium", 
       "*.large", 
       "*.xlarge", 
-      "c*", 
+      "c*",
+      "t*", 
       "m*", 
       "r*"
     ]
@@ -131,13 +133,13 @@ data "aws_ec2_instance_types" "arm64_compatible" {
 locals {
   # Filter and sort instance types by size and performance
   x86_instance_types = [for t in data.aws_ec2_instance_types.x86_compatible.instance_types : t 
-    if can(regex("^[mcr]\\d+\\.", t)) || 
-       can(regex("^[mcr]\\d+a\\.", t)) || 
-       can(regex("^[mcr]\\d+i\\.", t))
+    if can(regex("^[mtcr]\\d+\\.", t)) || 
+       can(regex("^[mtcr]\\d+a\\.", t)) || 
+       can(regex("^[mtcr]\\d+i\\.", t))
   ]
 
   arm64_instance_types = [for t in data.aws_ec2_instance_types.arm64_compatible.instance_types : t 
-    if can(regex("^[mcr]\\d+g\\.", t))
+    if can(regex("^[mtcr]\\d+g\\.", t))
   ]
 
   # Select a range of instance types from small to large
@@ -339,7 +341,208 @@ module "eks" {
     # (i.e. - at most, only one security group should have this tag in your account)
     "karpenter.sh/discovery" = var.cluster_name
   }
+
+
 }
+
+
+###############################################################################
+# ALB
+###############################################################################
+
+# IAM Role for ALB Controller
+module "lb_controller_role" {
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  role_name = "eks-alb-controller-role"
+
+  role_policy_arns = {
+    alb_controller = aws_iam_policy.alb_controller.arn
+  }
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+}
+
+# IAM Policy for ALB Controller
+resource "aws_iam_policy" "alb_controller" {
+  name        = "AWSLoadBalancerControllerIAMPolicy"
+  path        = "/"
+  description = "IAM policy for AWS Load Balancer Controller"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "acm:DescribeCertificate",
+          "acm:ListCertificates",
+          "acm:GetCertificate",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:CreateSecurityGroup",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DescribeAccountAttributes",
+          "ec2:DescribeAddresses",
+          "ec2:DescribeInstances",
+          "ec2:DescribeInstanceStatus",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeTags",
+          "ec2:DescribeVpcs",
+          "ec2:ModifyInstanceAttribute",
+          "ec2:ModifyNetworkInterfaceAttribute",
+          "ec2:RevokeSecurityGroupIngress",
+          "elasticloadbalancing:AddListenerCertificates",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:CreateRule",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DeleteRule",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:DeregisterTargets",
+          "elasticloadbalancing:DescribeListenerCertificates",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
+          "elasticloadbalancing:DescribeRules",
+          "elasticloadbalancing:DescribeSSLPolicies",
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeTargetGroupAttributes",
+          "elasticloadbalancing:DescribeTargetHealth",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:ModifyRule",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:RemoveListenerCertificates",
+          "elasticloadbalancing:RemoveTags",
+          "elasticloadbalancing:SetIpAddressType",
+          "elasticloadbalancing:SetSecurityGroups",
+          "elasticloadbalancing:SetSubnets",
+          "elasticloadbalancing:SetWebACL",
+          "iam:CreateServiceLinkedRole",
+          "iam:GetServerCertificate",
+          "iam:ListServerCertificates",
+          "shield:DescribeProtection",
+          "shield:GetSubscriptionState",
+          "shield:ListProtections",
+          "waf-regional:GetWebACLForResource",
+          "waf-regional:GetWebACL",
+          "waf-regional:AssociateWebACL",
+          "waf-regional:DisassociateWebACL",
+          "wafv2:GetWebACL",
+          "wafv2:GetWebACLForResource",
+          "wafv2:AssociateWebACL",
+          "wafv2:DisassociateWebACL",
+          "tag:GetResources",
+          "tag:TagResources",
+          "iam:CreateServiceLinkedRole",
+          "ec2:DescribeAvailabilityZones"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:DeregisterTargets"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "acm:DescribeCertificate",
+          "acm:ListCertificates",
+          "acm:GetCertificate"
+        ]
+        Resource = "*"
+      }      
+    ]
+  })
+}
+
+# Helm Release for ALB Controller
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  version    = "1.4.4"
+
+  depends_on = [helm_release.karpenter]
+
+
+  
+
+  set {
+    name  = "clusterName"
+    value = module.eks.cluster_name
+  }
+
+  set {
+    name  = "serviceAccount.create"
+    value = "true"
+  }
+
+  set {
+    name  = "serviceAccount.name"
+    value = "aws-load-balancer-controller"
+  }
+
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.lb_controller_role.iam_role_arn
+  }
+
+  set {
+    name  = "vpcId"
+    value = data.aws_vpc.existing.id
+  }
+
+  
+}
+
 
 ###############################################################################
 # Karpenter
@@ -505,4 +708,91 @@ resource "kubectl_manifest" "karpenter_graviton_spot_node_class" {
   YAML
 
   depends_on = [helm_release.karpenter]
+}
+
+resource "helm_release" "argocd" {
+  name             = "argocd"
+  namespace        = "argocd"
+  create_namespace = true
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  version          = "6.7.3"
+
+  depends_on = [helm_release.karpenter]
+
+
+    values = [
+    <<-EOT
+    server:
+      service:
+        type: ClusterIP
+    EOT
+  ]
+
+}
+
+###############################################################################
+# ArgoCD AMD 64
+###############################################################################
+resource "kubectl_manifest" "argocd_sock_shop_application" {
+  yaml_body = <<-YAML
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sock-shop
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pelstix/opsfleet-karpenter.git
+    targetRevision: HEAD
+    path: manifests/amd64-apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sock-shop
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64  # Graviton-specific node selection
+  YAML
+
+  depends_on = [helm_release.argocd]
+}
+###############################################################################
+# ArgoCD ARM 64
+###############################################################################
+
+resource "kubectl_manifest" "argocd_inflate_application" {
+  yaml_body = <<-YAML
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: inflate
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pelstix/opsfleet-karpenter.git
+    targetRevision: HEAD
+    path: manifests/arm64-apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+  YAML
+
+  depends_on = [helm_release.argocd]
 }
