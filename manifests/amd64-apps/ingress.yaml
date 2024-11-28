@@ -10,7 +10,8 @@ metadata:
     alb.ingress.kubernetes.io/group.name: sock-shop
         
     # Load Balancer Settings
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'  
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'  # Removed HTTPS part
+    alb.ingress.kubernetes.io/ssl-redirect: 'false'  # Disabled SSL redirect        
         
     # Additional Tags
     alb.ingress.kubernetes.io/tags: Environment=Demo,Project=sock-shop
@@ -26,3 +27,4 @@ spec:
             name: front-end
             port:
               number: 80
+
