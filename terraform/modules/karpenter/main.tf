@@ -1,4 +1,3 @@
-# modules/karpenter/main.tf
 module "karpenter" {
   source = "terraform-aws-modules/eks/aws//modules/karpenter"
 

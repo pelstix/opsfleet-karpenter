@@ -1,5 +1,3 @@
-# modules/karpenter/outputs.tf
-
 output "node_iam_role_name" {
   description = "Name of the IAM role created for Karpenter nodes"
   value       = module.karpenter.node_iam_role_name

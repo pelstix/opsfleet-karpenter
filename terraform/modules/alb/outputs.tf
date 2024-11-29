@@ -1,5 +1,3 @@
-# modules/alb/outputs.tf
-
 output "iam_role_arn" {
   description = "ARN of the IAM role created for the ALB Controller"
   value       = module.lb_controller_role.iam_role_arn

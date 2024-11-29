@@ -1,10 +1,9 @@
-# modules/eks/main.tf
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.24.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.31"
+  cluster_version = var.cluster_version
 
   cluster_endpoint_public_access = true
 
@@ -17,11 +16,11 @@ module "eks" {
 
   vpc_id                   = var.vpc_id
   subnet_ids               = var.subnet_ids
-  control_plane_subnet_ids = var.intra_subnet_ids
+  control_plane_subnet_ids = var.instance_types
 
   eks_managed_node_groups = {
     karpenter = {
-      ami_type       = "AL2023_x86_64_STANDARD"
+      ami_type       = var.ami_type
       instance_types = ["t3.medium"]
 
       min_size     = 1

@@ -1,6 +1,3 @@
-
-
-# main.tf
 module "data_sources" {
   source = "./modules/data-sources"
   region = var.region
