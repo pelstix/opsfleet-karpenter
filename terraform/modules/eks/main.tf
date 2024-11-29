@@ -16,12 +16,12 @@ module "eks" {
 
   vpc_id                   = var.vpc_id
   subnet_ids               = var.subnet_ids
-  control_plane_subnet_ids = var.instance_types
+  control_plane_subnet_ids = var.intra_subnet_ids
 
   eks_managed_node_groups = {
     karpenter = {
       ami_type       = var.ami_type
-      instance_types = ["t3.medium"]
+      instance_types = var.instance_types
 
       min_size     = 1
       max_size     = 3
