@@ -29,7 +29,7 @@ spec:
   source:
     repoURL: https://github.com/pelstix/opsfleet-karpenter.git
     targetRevision: HEAD
-    path: manifests/amd64-apps
+    path: technical-tasks/manifests/amd64-apps
   destination:
     server: https://kubernetes.default.svc
     namespace: sock-shop
@@ -62,7 +62,7 @@ spec:
   source:
     repoURL: https://github.com/pelstix/opsfleet-karpenter.git
     targetRevision: HEAD
-    path: manifests/arm64-apps
+    path: technical-tasks/manifests/arm64-apps
   destination:
     server: https://kubernetes.default.svc
     namespace: default
