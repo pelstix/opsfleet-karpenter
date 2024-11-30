@@ -67,6 +67,7 @@ Before getting started, ensure you have the following installed:
    - NAT Gateway
    - Public and Private subnets
 
+![EKS Cluster Architecture](/images/deployments.png)
 ## Getting Started
 
 ### 1. Clone the Repository
@@ -96,6 +97,7 @@ terraform init
 terraform plan
 terraform apply
 ```
+![EKS Cluster Architecture](/images/deployments.png)
 
 ## Deploying Applications
 
@@ -105,6 +107,7 @@ terraform apply
 ```bash
 kubectl get nodepools
 ```
+![EKS Cluster Architecture](/images/node-pools.png)
 
 2. Deploy x86-specific application:
 ```bash
@@ -129,6 +132,7 @@ kubectl get nodepools
 ```bash
 kubectl apply -f manifests/arm64-apps/your-arm64-deployment.yaml
 ```
+![EKS Cluster Architecture](/images/graviton-apps.png)
 
 Use node selector in your deployment:
 ```yaml
@@ -173,6 +177,7 @@ kubectl port-forward svc/grafana -n monitoring 3000:80
 The AWS Load Balancer Controller manages ingress and load balancing. Access the frontend via the ALB's DNS name:
 
 `http://<alb-dns-name>.elb.amazonaws.com`
+![EKS Cluster Architecture](/images/alb.png)
 
 ## Cleanup
 
