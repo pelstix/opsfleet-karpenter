@@ -164,6 +164,9 @@ kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-pass
 ```bash
 kubectl port-forward svc/grafana -n monitoring 3000:80
 ```
+ ![EKS Cluster Architecture](/images/frontend-monitoring.png)
+ ![EKS Cluster Architecture](/images/node-monitoring.png)
+
 
 ### Frontend Application
 
