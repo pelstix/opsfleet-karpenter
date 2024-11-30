@@ -99,7 +99,8 @@ terraform apply
 ```
 ![EKS Cluster Architecture](/technical-tasks/images/deployment.png)
 
-## Deploying Applications
+## Deploying Applications Manually
+N.B: I implemented with ArgoCD, The below is just to show a manual approach you can use to deploy
 
 ### X86 (AMD64) Deployment
 
