@@ -151,6 +151,8 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
+![EKS Cluster Architecture](/images/argo-cd.png)
+
 ### Grafana
 
 1. Get admin password:
