@@ -67,7 +67,7 @@ Before getting started, ensure you have the following installed:
    - NAT Gateway
    - Public and Private subnets
 
-![EKS Cluster Architecture](/images/deployments.png)
+
 ## Getting Started
 
 ### 1. Clone the Repository
@@ -97,7 +97,7 @@ terraform init
 terraform plan
 terraform apply
 ```
-![EKS Cluster Architecture](/images/deployments.png)
+![EKS Cluster Architecture](/images/deployment.png)
 
 ## Deploying Applications
 
@@ -193,10 +193,3 @@ terraform destroy
 - Check Terraform and provider versions
 - Confirm network connectivity and VPC settings
 
-## License
-
-[Add your license information here]
-
-## Contributing
-
-[Add contribution guidelines here]
