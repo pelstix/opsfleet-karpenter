@@ -23,7 +23,7 @@ Before getting started, ensure you have the following installed:
 - Helm
 - Existing VPC named "Opsfleet-vpc"
 
-  ![EKS Cluster Architecture](/images/project-structure.png)
+  ![EKS Cluster Architecture](/technical-tasks/images/project-structure.png)
 
 ## Cluster Components
 
@@ -97,7 +97,7 @@ terraform init
 terraform plan
 terraform apply
 ```
-![EKS Cluster Architecture](/images/deployment.png)
+![EKS Cluster Architecture](/technical-tasks/images/deployment.png)
 
 ## Deploying Applications
 
@@ -107,7 +107,7 @@ terraform apply
 ```bash
 kubectl get nodepools
 ```
-![EKS Cluster Architecture](/images/node-pools.png)
+![EKS Cluster Architecture](/technical-tasks/images/node-pools.png)
 
 2. Deploy x86-specific application:
 ```bash
@@ -132,7 +132,7 @@ kubectl get nodepools
 ```bash
 kubectl apply -f manifests/arm64-apps/your-arm64-deployment.yaml
 ```
-![EKS Cluster Architecture](/images/graviton-apps.png)
+![EKS Cluster Architecture](/technical-tasks/images/graviton-apps.png)
 
 Use node selector in your deployment:
 ```yaml
@@ -155,7 +155,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
-![EKS Cluster Architecture](/images/argo-cd.png)
+![EKS Cluster Architecture](/technical-tasks/images/argo-cd.png)
 
 ### Grafana
 
@@ -168,8 +168,8 @@ kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-pass
 ```bash
 kubectl port-forward svc/grafana -n monitoring 3000:80
 ```
- ![EKS Cluster Architecture](/images/frontend-monitoring.png)
- ![EKS Cluster Architecture](/images/node-monitoring.png)
+ ![EKS Cluster Architecture](/technical-tasks/images/frontend-monitoring.png)
+ ![EKS Cluster Architecture](/technical-tasks/images/node-monitoring.png)
 
 
 ### Frontend Application
@@ -177,7 +177,7 @@ kubectl port-forward svc/grafana -n monitoring 3000:80
 The AWS Load Balancer Controller manages ingress and load balancing. Access the frontend via the ALB's DNS name:
 
 `http://<alb-dns-name>.elb.amazonaws.com`
-![EKS Cluster Architecture](/images/alb.png)
+![EKS Cluster Architecture](/technical-tasks/images/alb.png)
 
 ## Cleanup
 
