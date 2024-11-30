@@ -23,7 +23,7 @@ Before getting started, ensure you have the following installed:
 - Helm
 - Existing VPC named "Opsfleet-vpc"
 
-  ![EKS Cluster Architecture](/images/Screenshot 2024-11-30 at 07.46.55.png)
+  ![EKS Cluster Architecture](/images/project-structure.png)
 
 ## Cluster Components
 
